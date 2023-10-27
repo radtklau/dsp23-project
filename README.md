@@ -97,5 +97,5 @@
 
  **An architecture diagram (what we already did in the class but you need to choose the technologies for each component: eg: FastAPI for
      the model serving and streamlit for the webapp**
-![](https://drive.google.com/file/d/1zZtIqkdBZadAScJj2_eUhACyRHE1vG8p/view?usp=sharing)
+![](data/project-architecture.png)
 
