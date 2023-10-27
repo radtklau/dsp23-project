@@ -8,8 +8,7 @@
 	 - Thiago Amado Costa
 	 - Laurids Radtke 
 
-**2. A description of your project subject with the following information:**
-
+**2. A description of your project subject with the following information:**  
  	. The chosen use case: **House prices prediction** 
  	. The link and description of the dataset you'll be using for the use case. You should not submit the dataset itself but a link
 	 	- **Link of the train set:** https://drive.google.com/file/d/1xM52xXHPGeawkzqQS8sJOHQGa-xqHkaH/view?usp=sharing
