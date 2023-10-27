@@ -14,11 +14,11 @@
  4. The link and description of the dataset you'll be using for the use case. You should not submit the dataset itself but a link
 	 - **Link of the train set:** https://drive.google.com/file/d/1xM52xXHPGeawkzqQS8sJOHQGa-xqHkaH/view?usp=sharing
 	 - **Link of the test set:** https://drive.google.com/file/d/1UmwFn74BPTCPG6xhYzSIPdmnTZENzzHY/view?usp=sharing
-	 - **Description:** 
-			1. MSSubClass: Identifies the type of dwel
-			2. MSZoning: Identifies the general zoning classification of the sale.
-			3. LotFrontage: Linear feet of street connected to property
-			4. LotArea: Lot size in square feet
+	 - **Description:**  
+			1. MSSubClass: Identifies the type of dwel  
+			2. MSZoning: Identifies the general zoning classification of the sale.  
+			3. LotFrontage: Linear feet of street connected to property  
+			4. LotArea: Lot size in square feet  
 			5. Street: Type of road access to property  
   			6. Alley: Type of alley access to property		
 			7. LotShape: General shape of property     
