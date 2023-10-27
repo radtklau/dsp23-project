@@ -1,12 +1,14 @@
-# dsp23-project
+﻿# dsp23-project
 ## For this assignment you need to submit a PDF document with:
 
-1. Your group name AND member list (the group specifications were defined in the class)
+**1. Your group name AND member list (the group specifications were defined in the class)**  
+
 	- Group Name: Data Transformer team
 	- Members:
 		- Mamadou Mouctar Baldé
 		- Thiago Amado Costa
 		- Laurids Radtke 
+
 **2. A description of your project subject with the following information:**
 	- The chosen use case: **House prices prediction** 
 	- The link and description of the dataset you'll be using for the use case. You should not submit the dataset itself but a link
@@ -62,157 +64,39 @@
 			47. BsmtFullBath: Basement full bathrooms
 			48. BsmtHalfBath: Basement half bathrooms
 			49. FullBath: Full bathrooms above grade
+			50. HalfBath: Half baths above grade
+51. Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
+52. Kitchen: Kitchens above grade
+53. KitchenQual: Kitchen quality
+54. TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+55. Functional: Home functionality (Assume typical unless deductions are warranted)
+56. Fireplaces: Number of fireplaces
+57. FireplaceQu: Fireplace quality
+58. GarageType: Garage location
+59. GarageYrBlt: Year garage was built
+60. GarageFinish: Interior finish of the garage
+61. GarageCars: Size of garage in car capacity
+62. GarageArea: Size of garage in square feet
+63. GarageQual: Garage quality
+64. GarageCond: Garage condition
+65. PavedDrive: Paved driveway
+66. WoodDeckSF: Wood deck area in square feet
+67. OpenPorchSF: Open porch area in square feet
+68. EnclosedPorch: Enclosed porch area in square feet
+69. 3SsnPorch: Three season porch area in square feet
+70. ScreenPorch: Screen porch area in square feet
+71. PoolArea: Pool area in square feet
+72. PoolQC: Pool quality
+73. Fence: Fence quality
+74. MiscFeature: Miscellaneous feature not covered in other categories
+75. MiscVal: $Value of miscellaneous feature
+76. MoSold: Month Sold (MM)
+77. YrSold: Year Sold (YYYY)
+78. SaleType: Type of sale
+       79. SaleCondition: Condition of sale
+       	- **An architecture diagram (what we already did in the class but you need to choose the technologies for each component: eg: FastAPI for the model serving and streamlit for the webapp**   
+ 
+!(https://drive.google.com/file/d/1zZtIqkdBZadAScJj2_eUhACyRHE1vG8p/view?usp=sharing)
 
-HalfBath: Half baths above grade
-
-Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
-
-Kitchen: Kitchens above grade
-
-KitchenQual: Kitchen quality
-
-       Ex	Excellent
-       Gd	Good
-       TA	Typical/Average
-       Fa	Fair
-       Po	Poor
-       	
-TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
-
-Functional: Home functionality (Assume typical unless deductions are warranted)
-
-       Typ	Typical Functionality
-       Min1	Minor Deductions 1
-       Min2	Minor Deductions 2
-       Mod	Moderate Deductions
-       Maj1	Major Deductions 1
-       Maj2	Major Deductions 2
-       Sev	Severely Damaged
-       Sal	Salvage only
-		
-Fireplaces: Number of fireplaces
-
-FireplaceQu: Fireplace quality
-
-       Ex	Excellent - Exceptional Masonry Fireplace
-       Gd	Good - Masonry Fireplace in main level
-       TA	Average - Prefabricated Fireplace in main living area or Masonry Fireplace in basement
-       Fa	Fair - Prefabricated Fireplace in basement
-       Po	Poor - Ben Franklin Stove
-       NA	No Fireplace
-		
-GarageType: Garage location
-		
-       2Types	More than one type of garage
-       Attchd	Attached to home
-       Basment	Basement Garage
-       BuiltIn	Built-In (Garage part of house - typically has room above garage)
-       CarPort	Car Port
-       Detchd	Detached from home
-       NA	No Garage
-		
-GarageYrBlt: Year garage was built
-		
-GarageFinish: Interior finish of the garage
-
-       Fin	Finished
-       RFn	Rough Finished	
-       Unf	Unfinished
-       NA	No Garage
-		
-GarageCars: Size of garage in car capacity
-
-GarageArea: Size of garage in square feet
-
-GarageQual: Garage quality
-
-       Ex	Excellent
-       Gd	Good
-       TA	Typical/Average
-       Fa	Fair
-       Po	Poor
-       NA	No Garage
-		
-GarageCond: Garage condition
-
-       Ex	Excellent
-       Gd	Good
-       TA	Typical/Average
-       Fa	Fair
-       Po	Poor
-       NA	No Garage
-		
-PavedDrive: Paved driveway
-
-       Y	Paved 
-       P	Partial Pavement
-       N	Dirt/Gravel
-		
-WoodDeckSF: Wood deck area in square feet
-
-OpenPorchSF: Open porch area in square feet
-
-EnclosedPorch: Enclosed porch area in square feet
-
-3SsnPorch: Three season porch area in square feet
-
-ScreenPorch: Screen porch area in square feet
-
-PoolArea: Pool area in square feet
-
-PoolQC: Pool quality
-		
-       Ex	Excellent
-       Gd	Good
-       TA	Average/Typical
-       Fa	Fair
-       NA	No Pool
-		
-Fence: Fence quality
-		
-       GdPrv	Good Privacy
-       MnPrv	Minimum Privacy
-       GdWo	Good Wood
-       MnWw	Minimum Wood/Wire
-       NA	No Fence
-	
-MiscFeature: Miscellaneous feature not covered in other categories
-		
-       Elev	Elevator
-       Gar2	2nd Garage (if not described in garage section)
-       Othr	Other
-       Shed	Shed (over 100 SF)
-       TenC	Tennis Court
-       NA	None
-		
-MiscVal: $Value of miscellaneous feature
-
-MoSold: Month Sold (MM)
-
-YrSold: Year Sold (YYYY)
-
-SaleType: Type of sale
-		
-       WD 	Warranty Deed - Conventional
-       CWD	Warranty Deed - Cash
-       VWD	Warranty Deed - VA Loan
-       New	Home just constructed and sold
-       COD	Court Officer Deed/Estate
-       Con	Contract 15% Down payment regular terms
-       ConLw	Contract Low Down payment and low interest
-       ConLI	Contract Low Interest
-       ConLD	Contract Low Down
-       Oth	Other
-		
-SaleCondition: Condition of sale
-
-       Normal	Normal Sale
-       Abnorml	Abnormal Sale -  trade, foreclosure, short sale
-       AdjLand	Adjoining Land Purchase
-       Alloca	Allocation - two linked properties with separate deeds, typically condo with a garage unit	
-       Family	Sale between family members
-       Partial	Home was not completed when last assessed (associated with New Homes)
-
-
-	- An architecture diagram (what we already did in the class but you need to choose the technologies for each component: eg: FastAPI for the model serving and streamlit for the webapp
 **Only the group representative should make the submission**
+
