@@ -14,6 +14,7 @@
 		>> **Link of the train set:** https://drive.google.com/file/d/1xM52xXHPGeawkzqQS8sJOHQGa-xqHkaH/view?usp=sharing  
 	 	>> **Link of the test set:** https://drive.google.com/file/d/1UmwFn74BPTCPG6xhYzSIPdmnTZENzzHY/view?usp=sharing  
 	 	>> **Description:**  
+   
    			1. MSSubClass: Identifies the type of dwel  
 			2. MSZoning: Identifies the general zoning classification of the sale.  
 			3. LotFrontage: Linear feet of street connected to property  
