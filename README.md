@@ -65,39 +65,37 @@
 			48. BsmtHalfBath: Basement half bathrooms
 			49. FullBath: Full bathrooms above grade
 			50. HalfBath: Half baths above grade
- 5. Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
- 6. Kitchen: Kitchens above grade
- 7. KitchenQual: Kitchen quality
- 8. TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
- 9. Functional: Home functionality (Assume typical unless deductions are warranted)
- 10. Fireplaces: Number of fireplaces
- 11. FireplaceQu: Fireplace quality
- 12. GarageType: Garage location
- 13. GarageYrBlt: Year garage was built
- 14. GarageFinish: Interior finish of the garage
- 15. GarageCars: Size of garage in car capacity
- 16. GarageArea: Size of garage in square feet
- 17. GarageQual: Garage quality
- 18. GarageCond: Garage condition
- 19. PavedDrive: Paved driveway
- 20. WoodDeckSF: Wood deck area in square feet
- 21. OpenPorchSF: Open porch area in square feet
- 22. EnclosedPorch: Enclosed porch area in square feet
- 23. 3SsnPorch: Three season porch area in square feet
- 24. ScreenPorch: Screen porch area in square feet
- 25. PoolArea: Pool area in square feet
- 26. PoolQC: Pool quality
- 27. Fence: Fence quality
- 28. MiscFeature: Miscellaneous feature not covered in other categories
- 29. MiscVal: $Value of miscellaneous feature
- 30. MoSold: Month Sold (MM)
- 31. YrSold: Year Sold (YYYY)
- 32. SaleType: Type of sale
- 33. SaleCondition: Condition of sale
+			51. Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
+			52. Kitchen: Kitchens above grade
+			53. KitchenQual: Kitchen quality
+			54. TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+			55. Functional: Home functionality (Assume typical unless deductions are warranted)
+			56. Fireplaces: Number of fireplaces
+			57. FireplaceQu: Fireplace quality
+			58. GarageType: Garage location
+			59. GarageYrBlt: Year garage was built
+			60. GarageFinish: Interior finish of the garage
+			61. GarageCars: Size of garage in car capacity
+			62. GarageArea: Size of garage in square feet
+			63. GarageQual: Garage quality
+			64. GarageCond: Garage condition
+			65. PavedDrive: Paved driveway
+			66. WoodDeckSF: Wood deck area in square feet
+			67. OpenPorchSF: Open porch area in square feet
+			68. EnclosedPorch: Enclosed porch area in square feet
+			69. 3SsnPorch: Three season porch area in square feet
+			70. ScreenPorch: Screen porch area in square feet
+			71. PoolArea: Pool area in square feet
+			72. PoolQC: Pool quality
+			73. Fence: Fence quality
+			74. MiscFeature: Miscellaneous feature not covered in other categories
+			75. MiscVal: $Value of miscellaneous feature
+			76. MoSold: Month Sold (MM)
+			77. YrSold: Year Sold (YYYY)
+			78. SaleType: Type of sale
+			79. SaleCondition: Condition of sale
 
  **An architecture diagram (what we already did in the class but you need to choose the technologies for each component: eg: FastAPI for
      the model serving and streamlit for the webapp**
 ![](https://drive.google.com/file/d/1zZtIqkdBZadAScJj2_eUhACyRHE1vG8p/view?usp=sharing)
-
-**Only the group representative should make the submission**
 
