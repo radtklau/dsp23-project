@@ -48,3 +48,17 @@ if __name__ == "__main__":
         training_loss.append(epoch_loss)
         
     epochs = range(1, len(training_loss) + 1)
+    
+    plt.plot(epochs, training_loss, label='Training Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss Over Time')
+    plt.legend()
+
+    # Show the plot or save it to a file
+    
+    current_datetime = datetime.now()
+    file_name = current_datetime.strftime('plots/%Y%m%d%H%M%S_training_loss_0.png')
+    plt.savefig(file_name)
+    plt.show()
+    torch.save(model.state_dict(), 'trained_model_0.pth')
