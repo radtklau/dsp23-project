@@ -11,7 +11,6 @@ class CSVDataset(Dataset):
             with open(path, 'r') as json_file:
                 self.data = pd.read_csv(path)
         except FileNotFoundError:
-            # The file doesn't exist, so we catch the `FileNotFoundError` exception and initialize an empty dictionary.
             pass
 
     # number of rows in the dataset
