@@ -36,7 +36,31 @@ class CSVDataset(Dataset):
         }
         
         self.features = self.preprocess_data()
+    
+    def preprocess_data(self):
+        numerical_imputer = SimpleImputer(strategy='mean')
+        #replacing missing values and unifiying dtypes
         
+        #1. replace nan with 'NA' in categorical variables (if dtype == object)
+        for column in self.data:
+            if self.data[column].dtype == object: #categorical feature
+                self.data[column] = self.data[column].fillna('NA')  
+        #2. handle GarageYrBlt seperatly
+            elif column == 'GarageYrBlt': #NaN means no garage, construction year of 0 would not be a good idea so we take mean
+                numerical_imputer.fit_transform(self.data[column])
+        #3. Convert all numerical data to float64 and replace NaN with 0.0
+            else:
+                if np.issubdtype(self.data[column].dtype, np.integer):
+                    self.data[column] = self.data[column].astype('float64')
+                self.data[column] = self.data[column].fillna(0.0)
+                
+        #encoding categorical data
+        
+        
+                  
+                     
+    
+    """
     def preprocess_data(self):
             num_col_name = []
             cat_col_name = []
@@ -72,6 +96,7 @@ class CSVDataset(Dataset):
             features = self.data.drop(columns=['SalePrice', 'Id']).values
 
             return features
+    """
     """   
     def preprocess_data(self):
         #missing numerical values are replaced by taking average of existing values
