@@ -9,7 +9,7 @@ from datetime import datetime
 from model import Model
 
 if __name__ == "__main__":
-    path = '../data/train.csv'
+    path = 'data/train.csv'
     #test_file_path = '../data/test.csv'
     dataset = CSVDataset(path)
     train_size = int(0.8 * len(dataset)) 
