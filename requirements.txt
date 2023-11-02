@@ -1,8 +1,7 @@
-pip install pandas
-pip install streamlit
-pip install numpy
-pip install pandas
-pip install uvicorn
-pip install fastAPI
-pip install SQLAlchemy
-pip install psycopg2
+pandas==2.1.2
+streamlit==1.28.0
+numpy==1.26.1
+uvicorn==0.23.2
+fastapi==0.104.1
+SQLAlchemy==2.0.23
+psycopg2==2.9.9
