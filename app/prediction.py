@@ -35,7 +35,7 @@ if st.button("Predict"):
     }
     # st.write(data)
     # breakpoint()
-    response = requests.post("http://127.0.0.1:8000/predict", json=data)
+    response = requests.post("http://127.0.0.1:8080/predict", json=data)
     # st.write(response.json())
     # breakpoint()
     if (response.status_code == 200 or response.status_code == 422):

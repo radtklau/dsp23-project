@@ -4,17 +4,18 @@ import joblib
 import numpy as np
 from datetime import datetime
 import psycopg2
-from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime
+from sqlalchemy import MetaData, Table, create_engine, Column, Float, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+import uvicorn
 
 app = FastAPI()
 
 # Load the saved joblib model
-model = joblib.load("data\\housepricing.joblib")
+model = joblib.load("..\\data\\housepricing.joblib")
 
-##
-DATABASE_URL = "postgresql://postgres:Loyaldreambalde11@localhost:5432/dsp23"
+PASSWORD = "" 
+DATABASE_URL = "postgresql://postgres:"+PASSWORD+"@localhost:5432/dsp23"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -61,6 +62,13 @@ class InputData(BaseModel):
     KitchenQual_Gd: int
     KitchenQual_TA: int
     
+
+class PastPredictionData(BaseModel):
+    start_date: str 
+    end_date: str
+    prediction_source: str 
+
+
 # The predict Path function
 @app.post("/predict")
 def predict(data: InputData):
@@ -89,7 +97,6 @@ def predict(data: InputData):
     # Enregistrez la prédiction dans la base de données PostgreSQL
     db = SessionLocal()
     db_prediction = PredictionRecord(
-        # id = 5,
         TotRmsAbvGrd = data.TotRmsAbvGrd,
         WoodDeckSF = data.WoodDeckSF,
         YrSold = data.YrSold,
@@ -104,7 +111,6 @@ def predict(data: InputData):
         KitchenQual_Fa = data.KitchenQual_Fa,
         KitchenQual_Gd = data.KitchenQual_Gd,
         KitchenQual_TA = data.KitchenQual_TA,
-        # predict_date = datetime.date.today(),
         predict_date = datetime.now(),
         predict_result = prediction[0],
         predict_source = "web",
@@ -115,3 +121,19 @@ def predict(data: InputData):
 
     # return the prediction value to the streamlit UI
     return {"predictions": prediction[0],"data":input_data}
+
+
+@app.get("/past-predictions")
+async def get_predictions(data: PastPredictionData): 
+
+    start_date = datetime.strptime(data.start_date, "%d/%m/%Y")
+    end_date = datetime.strptime(data.end_date, "%d/%m/%Y")
+    prediction_source = data.prediction_source
+    
+    db = SessionLocal()
+    db_contents = db.query(PredictionRecord).all()
+    
+    return db_contents 
+
+if __name__ == "__main__":
+    uvicorn.run("main_api:app", host="127.0.0.1", port=8080)
