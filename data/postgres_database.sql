@@ -5,10 +5,10 @@
 CREATE TABLE IF NOT EXISTS public.predictions
 (
     id SERIAL,
-    "TotRmsAbvGrd" real,
-    "WoodDeckSF" real,
+    "TotRmsAbvGrd" integer,
+    "WoodDeckSF" integer,
     "YrSold" integer,
-    "FirstFlrSF" real,
+    "FirstFlrSF" integer,
     "Foundation_BrkTil" integer,
     "Foundation_CBlock" integer,
     "Foundation_PConc" integer,
