@@ -6,7 +6,7 @@ import pandas as pd
 st.title("Streamlit Interface for prediction")
 # if st.button("predict from data")
 # Create input fields to collect data
-tot_rooms_abv_grd = st.number_input("Total rooms above grade (does not include bathrooms)", min_value=0.0)
+tot_rooms_abv_grd = st.number_input("Total rooms above grade (does not include bathrooms)", min_value=0)
 wood_deck_sf = st.number_input("Wood deck area in square feet  ", min_value=0.0)
 yr_sold = st.number_input("Year Sold (YYYY)", min_value=1900, max_value=2100, value=2023, step=1)
 first_flr_sf = st.number_input("First Floor square feet", min_value=0.0)
@@ -38,6 +38,7 @@ if st.button("Predict"):
     response = requests.post("http://127.0.0.1:8000/predict", json=data)
     # st.write(response.json())
     # breakpoint()
+    
     if (response.status_code == 200 or response.status_code == 422):
         # st.write(response.json())
         # breakpoint()
@@ -66,4 +67,4 @@ if st.button("Predict"):
         st.write(single_predict_data)
 
     else:
-        st.write("An error occurred during prediction.")
+        st.write("An error occurred during prediction."+str(response.status_code))
