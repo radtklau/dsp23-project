@@ -11,10 +11,10 @@ wood_deck_sf = st.number_input("Wood deck area in square feet  ", min_value=0)
 yr_sold = st.number_input("Year Sold (YYYY)", min_value=1900, max_value=2100, value=2023, step=1)
 first_flr_sf = st.number_input("First Floor square feet", min_value=0)
 
-foundation_options = ['Brick & Tile', 'Cinder Block', 'Poured Concrete', 'Slab', 'Stone', 'Wood']
+foundation_options = ['Foundation_BrkTil', 'Foundation_CBlock', 'Foundation_PConc', 'Foundation_Slab', 'Foundation_Stone', 'Foundation_Wood']
 foundation = st.selectbox("Foundation", foundation_options, index=0)
 
-kitchen_qual_options = ['Excellent', 'Good', 'Average', 'Fair', 'Poor']
+kitchen_qual_options = ['KitchenQual_Ex', 'KitchenQual_Fa', 'KitchenQual_Gd', 'KitchenQual_TA'] #TODO add poor quality
 kitchen_qual = st.selectbox("Kitchen Quality", kitchen_qual_options, index=0)
 
 
@@ -33,12 +33,13 @@ if st.button("Predict"):
         **foundation_values,
         **kitchen_qual_values,
     }
+    
     # st.write(data)
     # breakpoint()
     response = requests.post("http://127.0.0.1:8000/predict", json=data)
     # st.write(response.json())
     # breakpoint()
-    
+            
     if (response.status_code == 200 or response.status_code == 422):
         # st.write(response.json())
         # breakpoint()
@@ -67,4 +68,4 @@ if st.button("Predict"):
         st.write(single_predict_data)
 
     else:
-        st.write("An error occurred during prediction."+str(response.status_code))
+        st.write("An error occurred during prediction.")
