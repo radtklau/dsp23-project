@@ -27,9 +27,9 @@ class PredictionRecord(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     TotRmsAbvGrd = Column(Integer)
-    WoodDeckSF = Column(Float)
+    WoodDeckSF = Column(Integer)
     YrSold = Column(Integer)
-    FirstFlrSF = Column(Float)
+    FirstFlrSF = Column(Integer)
     Foundation_BrkTil = Column(Integer)
     Foundation_CBlock = Column(Integer)
     Foundation_PConc = Column(Integer)
@@ -47,9 +47,9 @@ class PredictionRecord(Base):
 # Data Validation with Pydantic.BaseModel
 class InputData(BaseModel):
     TotRmsAbvGrd: int
-    WoodDeckSF: float
+    WoodDeckSF: int
     YrSold: int
-    FirstFlrSF: float
+    FirstFlrSF: int
     Foundation_BrkTil: int
     Foundation_CBlock: int
     Foundation_PConc: int
