@@ -14,7 +14,7 @@ app = FastAPI()
 model = joblib.load("..\data\housepricing.joblib")
 
 ##
-DATABASE_URL = "postgresql://postgres:laurids1999@localhost:5432/dsp23"
+DATABASE_URL = "postgresql://postgres:@localhost:5432/dsp23"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
