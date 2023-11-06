@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import joblib
 import pandas as pd
 from datetime import datetime
-from sqlalchemy import MetaData, Table, create_engine, Column, Float, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 import uvicorn
@@ -17,7 +17,7 @@ model = joblib.load("..\\data\\housepricing.joblib")
 PASSWORD = "" 
 DATABASE_URL = "postgresql://postgres:"+PASSWORD+"@localhost:5432/dsp23"
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
@@ -48,8 +48,6 @@ class PredictionRecord(Base):
 ##############################################################################################################
 
 ##################################### Data Validation with Pydandic.BaseModel ################################
-
-# Data Validation with Pydantic.BaseModel
 class InputData(BaseModel):
     TotRmsAbvGrd: int
     WoodDeckSF: float
@@ -66,14 +64,12 @@ class InputData(BaseModel):
     KitchenQual_Gd: int
     KitchenQual_TA: int
     
+##############################################################################################################
+
 class PastPredictionData(BaseModel):
     start_date: str 
     end_date: str
     prediction_source: str 
-
-
-# The predict Path function
-##############################################################################################################
 
 ########################################## Single prediction endpoint ########################################
 @app.post("/predict")
@@ -128,19 +124,33 @@ def predict(data: InputData):
     # return the prediction value to the streamlit UI
     return {"predictions": prediction[0],"data":input_data}
 
+################################### Get Past Predictions# ########################################
 @app.get("/past-predictions")
-async def get_predictions(data: PastPredictionData): 
-
-    start_date = datetime.strptime(data.start_date, "%d/%m/%Y")
-    end_date = datetime.strptime(data.end_date, "%d/%m/%Y")
+async def get_predictions(data: PastPredictionData):
+    start_date = f"{data.start_date} 00:00:00"
+    end_date = f"{data.end_date} 00:00:00"
     prediction_source = data.prediction_source
-    
-    db = SessionLocal()
-    db_contents = db.query(PredictionRecord).all()
-    
-    return db_contents 
-##########################################################################################################
 
+    statement = select(PredictionRecord.TotRmsAbvGrd,
+                       PredictionRecord.WoodDeckSF,
+                       PredictionRecord.YrSold,
+                       PredictionRecord.FirstFlrSF,
+                       PredictionRecord.predict_date,
+                       PredictionRecord.predict_source,
+                       PredictionRecord.predict_result
+                       ).where(
+        PredictionRecord.predict_date >= start_date,
+        PredictionRecord.predict_date <= end_date
+        )
+    if prediction_source != 'all':
+        statement = statement.where(
+            PredictionRecord.predict_source == prediction_source)
+
+    db = SessionLocal()
+    result = db.execute(statement)
+
+    return result.mappings().all()
+##########################################################################################################
 
 ################################### Multiple prediction endpoint #########################################
 @app.post("/predict_csv")
@@ -171,4 +181,4 @@ async def predict(file: UploadFile):
 ###########################################################################################################
  
 if __name__ == "__main__":
-    uvicorn.run("main_api:app", host="127.0.0.1", port=8080)
+    uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
