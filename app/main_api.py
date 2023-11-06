@@ -1,13 +1,13 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,UploadFile
 from pydantic import BaseModel
 import joblib
-import numpy as np
+import pandas as pd
 from datetime import datetime
-import psycopg2
 from sqlalchemy import MetaData, Table, create_engine, Column, Float, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 import uvicorn
+import io
 
 app = FastAPI()
 
@@ -21,13 +21,14 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+###############################################################################################################
 
-
+################################################## Postgres Table class ######################################
 class PredictionRecord(Base):
     __tablename__ = "predictions"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    TotRmsAbvGrd = Column(Float)
+    TotRmsAbvGrd = Column(Integer)
     WoodDeckSF = Column(Float)
     YrSold = Column(Integer)
     FirstFlrSF = Column(Float)
@@ -44,10 +45,13 @@ class PredictionRecord(Base):
     predict_date = Column(DateTime, default=datetime.utcnow)
     predict_result = Column(Float)
     predict_source = Column(String(4))
+##############################################################################################################
 
-# Data Validation with Pydandic.BaseModel
+##################################### Data Validation with Pydandic.BaseModel ################################
+
+# Data Validation with Pydantic.BaseModel
 class InputData(BaseModel):
-    TotRmsAbvGrd: float
+    TotRmsAbvGrd: int
     WoodDeckSF: float
     YrSold: int
     FirstFlrSF: float
@@ -62,7 +66,6 @@ class InputData(BaseModel):
     KitchenQual_Gd: int
     KitchenQual_TA: int
     
-
 class PastPredictionData(BaseModel):
     start_date: str 
     end_date: str
@@ -70,6 +73,9 @@ class PastPredictionData(BaseModel):
 
 
 # The predict Path function
+##############################################################################################################
+
+########################################## Single prediction endpoint ########################################
 @app.post("/predict")
 def predict(data: InputData):
     # Preparing the prediction data received from the streamlit UI
@@ -112,7 +118,7 @@ def predict(data: InputData):
         KitchenQual_Gd = data.KitchenQual_Gd,
         KitchenQual_TA = data.KitchenQual_TA,
         predict_date = datetime.now(),
-        predict_result = prediction[0],
+        predict_result = round(prediction[0],2),
         predict_source = "web",
     )
     db.add(db_prediction)
@@ -121,7 +127,6 @@ def predict(data: InputData):
 
     # return the prediction value to the streamlit UI
     return {"predictions": prediction[0],"data":input_data}
-
 
 @app.get("/past-predictions")
 async def get_predictions(data: PastPredictionData): 
@@ -134,6 +139,36 @@ async def get_predictions(data: PastPredictionData):
     db_contents = db.query(PredictionRecord).all()
     
     return db_contents 
+##########################################################################################################
 
+
+################################### Multiple prediction endpoint #########################################
+@app.post("/predict_csv")
+async def predict(file: UploadFile):
+    file_contents = file.file.read()
+
+    # Convertir le contenu en DataFrame
+    data = pd.read_csv(io.StringIO(file_contents.decode("utf-8")))
+
+    # Effectuer des prédictions avec le modèle
+    predictions = model.predict(data)
+
+    predictions_list = predictions.tolist()
+    data["predict_date"] = datetime.now()
+    data["predict_result"] = predictions_list
+    data["predict_source"] = "web"
+
+    # transform the dataframe to a dict just to insert it into the DB
+    data_dict = data.to_dict(orient="records")
+
+    # bulk_insert_mappings will insert all the dict into the DB at the same time
+    db = SessionLocal()
+    db.bulk_insert_mappings(PredictionRecord, data_dict)
+    db.commit()
+    
+    # return the predictions to the streamlit UI
+    return {"predictions": predictions_list}
+###########################################################################################################
+ 
 if __name__ == "__main__":
     uvicorn.run("main_api:app", host="127.0.0.1", port=8080)
