@@ -11,10 +11,12 @@ import io
 app = FastAPI()
 
 # Load the saved joblib model
+
 model = joblib.load("..\\data\\housepricing.joblib")
 
 ############################################### DATABASE CONNECTION ###########################################
 DATABASE_URL = "postgresql://postgres:Password@localhost:5432/dsp23"
+
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -27,7 +29,7 @@ class PredictionRecord(Base):
     __tablename__ = "predictions"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    TotRmsAbvGrd = Column(Float)
+    TotRmsAbvGrd = Column(Integer)
     WoodDeckSF = Column(Float)
     YrSold = Column(Integer)
     FirstFlrSF = Column(Float)
@@ -47,8 +49,10 @@ class PredictionRecord(Base):
 ##############################################################################################################
 
 ##################################### Data Validation with Pydandic.BaseModel ################################
+
+# Data Validation with Pydantic.BaseModel
 class InputData(BaseModel):
-    TotRmsAbvGrd: float
+    TotRmsAbvGrd: int
     WoodDeckSF: float
     YrSold: int
     FirstFlrSF: float
