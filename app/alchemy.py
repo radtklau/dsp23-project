@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime,Date
+from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime,Date, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-from datetime import datetime
+from datetime import datetime, date
 
-DATABASE_URL = "postgresql://postgres:password@localhost:5432/dsp23"
+PASSWORD = ""
+DATABASE_URL = "postgresql://postgres:"+PASSWORD+"@localhost:5432/dsp23"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -34,7 +35,6 @@ class PredictionRecord(Base):
 
 db = SessionLocal()
 db_prediction = PredictionRecord(
-    id = 3,
     TotRmsAbvGrd = 1.0,
     WoodDeckSF = 1.0,
     YrSold = 2023,
@@ -57,4 +57,3 @@ db_prediction = PredictionRecord(
 db.add(db_prediction)
 db.commit()
 db.refresh(db_prediction)
-   

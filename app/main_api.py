@@ -1,28 +1,29 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,UploadFile
 from pydantic import BaseModel
 import joblib
-import numpy as np
+import pandas as pd
 from datetime import datetime
-import psycopg2
-from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
+import uvicorn
+import io
 
 app = FastAPI()
 
 # Load the saved joblib model
-model = joblib.load("..\data\housepricing.joblib")
+model = joblib.load("..\\data\\housepricing.joblib")
 
-pw = "laurids1999"
-##
-DATABASE_URL = "postgresql://postgres:laurids1999@localhost:5432/dsp23"
+PASSWORD = "" 
+DATABASE_URL = "postgresql://postgres:"+PASSWORD+"@localhost:5432/dsp23"
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+###############################################################################################################
 
-
+################################################## Postgres Table class ######################################
 class PredictionRecord(Base):
     __tablename__ = "predictions"
 
@@ -44,8 +45,9 @@ class PredictionRecord(Base):
     predict_date = Column(DateTime, default=datetime.utcnow)
     predict_result = Column(Float)
     predict_source = Column(String(4))
+##############################################################################################################
 
-# Data Validation with Pydantic.BaseModel
+##################################### Data Validation with Pydandic.BaseModel ################################
 class InputData(BaseModel):
     TotRmsAbvGrd: int
     WoodDeckSF: int
@@ -62,7 +64,14 @@ class InputData(BaseModel):
     KitchenQual_Gd: int
     KitchenQual_TA: int
     
-# The predict Path function
+##############################################################################################################
+
+class PastPredictionData(BaseModel):
+    start_date: str 
+    end_date: str
+    prediction_source: str 
+
+########################################## Single prediction endpoint ########################################
 @app.post("/predict")
 def predict(data: InputData):
     # Preparing the prediction data received from the streamlit UI
@@ -90,7 +99,6 @@ def predict(data: InputData):
     # Enregistrez la prédiction dans la base de données PostgreSQL
     db = SessionLocal()
     db_prediction = PredictionRecord(
-        # id = 5,
         TotRmsAbvGrd = data.TotRmsAbvGrd,
         WoodDeckSF = data.WoodDeckSF,
         YrSold = data.YrSold,
@@ -105,9 +113,8 @@ def predict(data: InputData):
         KitchenQual_Fa = data.KitchenQual_Fa,
         KitchenQual_Gd = data.KitchenQual_Gd,
         KitchenQual_TA = data.KitchenQual_TA,
-        # predict_date = datetime.date.today(),
         predict_date = datetime.now(),
-        predict_result = prediction[0],
+        predict_result = round(prediction[0],2),
         predict_source = "web",
     )
     db.add(db_prediction)
@@ -116,3 +123,62 @@ def predict(data: InputData):
 
     # return the prediction value to the streamlit UI
     return {"predictions": prediction[0],"data":input_data}
+
+################################### Get Past Predictions# ########################################
+@app.get("/past-predictions")
+async def get_predictions(data: PastPredictionData):
+    start_date = f"{data.start_date} 00:00:00"
+    end_date = f"{data.end_date} 00:00:00"
+    prediction_source = data.prediction_source
+
+    statement = select(PredictionRecord.TotRmsAbvGrd,
+                       PredictionRecord.WoodDeckSF,
+                       PredictionRecord.YrSold,
+                       PredictionRecord.FirstFlrSF,
+                       PredictionRecord.predict_date,
+                       PredictionRecord.predict_source,
+                       PredictionRecord.predict_result
+                       ).where(
+        PredictionRecord.predict_date >= start_date,
+        PredictionRecord.predict_date <= end_date
+        )
+    if prediction_source != 'all':
+        statement = statement.where(
+            PredictionRecord.predict_source == prediction_source)
+
+    db = SessionLocal()
+    result = db.execute(statement)
+
+    return result.mappings().all()
+##########################################################################################################
+
+################################### Multiple prediction endpoint #########################################
+@app.post("/predict_csv")
+async def predict(file: UploadFile):
+    file_contents = file.file.read()
+
+    # Convertir le contenu en DataFrame
+    data = pd.read_csv(io.StringIO(file_contents.decode("utf-8")))
+
+    # Effectuer des prédictions avec le modèle
+    predictions = model.predict(data)
+
+    predictions_list = predictions.tolist()
+    data["predict_date"] = datetime.now()
+    data["predict_result"] = predictions_list
+    data["predict_source"] = "web"
+
+    # transform the dataframe to a dict just to insert it into the DB
+    data_dict = data.to_dict(orient="records")
+
+    # bulk_insert_mappings will insert all the dict into the DB at the same time
+    db = SessionLocal()
+    db.bulk_insert_mappings(PredictionRecord, data_dict)
+    db.commit()
+    
+    # return the predictions to the streamlit UI
+    return {"predictions": predictions_list}
+###########################################################################################################
+ 
+if __name__ == "__main__":
+    uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
