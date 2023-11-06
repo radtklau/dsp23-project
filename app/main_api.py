@@ -11,10 +11,10 @@ from sqlalchemy.orm import declarative_base
 app = FastAPI()
 
 # Load the saved joblib model
-model = joblib.load("data\\housepricing.joblib")
+model = joblib.load("..\data\housepricing.joblib")
 
 ##
-DATABASE_URL = "postgresql://postgres:Loyaldreambalde11@localhost:5432/dsp23"
+DATABASE_URL = "postgresql://postgres:laurids1999@localhost:5432/dsp23"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -26,7 +26,7 @@ class PredictionRecord(Base):
     __tablename__ = "predictions"
 
     id = Column(Integer, primary_key=True, nullable=False)
-    TotRmsAbvGrd = Column(Float)
+    TotRmsAbvGrd = Column(Integer)
     WoodDeckSF = Column(Float)
     YrSold = Column(Integer)
     FirstFlrSF = Column(Float)
@@ -44,9 +44,9 @@ class PredictionRecord(Base):
     predict_result = Column(Float)
     predict_source = Column(String(4))
 
-# Data Validation with Pydandic.BaseModel
+# Data Validation with Pydantic.BaseModel
 class InputData(BaseModel):
-    TotRmsAbvGrd: float
+    TotRmsAbvGrd: int
     WoodDeckSF: float
     YrSold: int
     FirstFlrSF: float

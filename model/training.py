@@ -12,6 +12,7 @@ if __name__ == "__main__":
     path = 'data/train.csv'
     #test_file_path = '../data/test.csv'
     dataset = CSVDataset(path)
+    
     train_size = int(0.8 * len(dataset)) 
     test_size = len(dataset) - train_size  
     train, test = random_split(dataset, [train_size, test_size])

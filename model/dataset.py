@@ -11,50 +11,105 @@ class CSVDataset(Dataset):
         self.data = pd.read_csv(csv_file)
         #self.features = self.data.drop(columns=['SalePrice','Id']).values  # Extract feature columns as numpy array
         self.targets = self.data['SalePrice'].values  # Extract target column as numpy array
-        self.feat_ordinal_dict = {
+        self.ordinal_feature_dict = {
             # Considers 'missing' as 'neutral'
             # Take the order is important as the ordinal encoders will label the categories in the order of the list.
-            'BsmtCond': ['missing', 'Po', 'Fa', 'TA', 'Gd'],
-            'BsmtExposure': ['missing', 'No', 'Mn', 'Av', 'Gd'],
-            'BsmtFinType1': ['missing', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ'],
-            'BsmtFinType2': ['missing', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ'],
-            'BsmtQual': ['missing', 'Fa', 'TA', 'Gd', 'Ex'],
-            'Electrical': ['missing', 'Mix', 'FuseP', 'FuseF', 'FuseA', 'SBrkr'],
-            'ExterCond': ['missing', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
-            'ExterQual': ['missing', 'Fa', 'TA', 'Gd', 'Ex'],
-            'FireplaceQu': ['missing', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
-            'Functional': ['missing', 'Sev', 'Maj2', 'Maj1', 'Mod', 'Min2', 'Min1', 'Typ'],
-            'GarageCond': ['missing', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
-            'GarageFinish': ['missing', 'Unf', 'RFn', 'Fin'],
-            'GarageQual': ['missing', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
-            'HeatingQC': ['missing', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
-            'KitchenQual': ['missing', 'Fa', 'TA', 'Gd', 'Ex'],
-            'LandContour': ['missing', 'Low', 'Bnk', 'HLS', 'Lvl'],
-            'LandSlope': ['missing', 'Sev', 'Mod', 'Gtl'],
-            'LotShape': ['missing', 'IR3', 'IR2', 'IR1', 'Reg'],
-            'PavedDrive': ['missing', 'N', 'P', 'Y'],
+            'BsmtCond': ['NA', 'Po', 'Fa', 'TA', 'Gd'],
+            'BsmtExposure': ['NA', 'No', 'Mn', 'Av', 'Gd'],
+            'BsmtFinType1': ['NA', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ'],
+            'BsmtFinType2': ['NA', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ'],
+            'BsmtQual': ['NA', 'Fa', 'TA', 'Gd', 'Ex'],
+            'Electrical': ['NA', 'Mix', 'FuseP', 'FuseF', 'FuseA', 'SBrkr'],
+            'ExterCond': ['NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
+            'ExterQual': ['NA', 'Fa', 'TA', 'Gd', 'Ex'],
+            'FireplaceQu': ['NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
+            'Functional': ['NA', 'Sev', 'Maj2', 'Maj1', 'Mod', 'Min2', 'Min1', 'Typ'],
+            'GarageCond': ['NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
+            'GarageFinish': ['NA', 'Unf', 'RFn', 'Fin'],
+            'GarageQual': ['NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
+            'HeatingQC': ['NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex'],
+            'KitchenQual': ['NA', 'Fa', 'TA', 'Gd', 'Ex'],
+            'LandContour': ['NA', 'Low', 'Bnk', 'HLS', 'Lvl'],
+            'LandSlope': ['NA', 'Sev', 'Mod', 'Gtl'],
+            'LotShape': ['NA', 'IR3', 'IR2', 'IR1', 'Reg'],
+            'PavedDrive': ['NA', 'N', 'P', 'Y'],
+            'PoolQC' : ['NA', 'Fa', 'TA', 'Gd', 'Ex'],
+            'Fence' : ['NA', 'MnWw', 'GdWo', 'MnPrv', 'GdPrv'],
+            'Utilities' : ['ELO', 'NoSeWa', 'NoSewr', 'AllPub']
+        }
+        self.nominal_feature_dict = {
+            'MSZoning' : [], 
+            'Street' : [], 
+            'Alley' : [], 
+            'LotConfig' : [], 
+            'Neighborhood' : [], 
+            'Condition1' : [], 
+            'Condition2' : [], 
+            'BldgType' : [], 
+            'HouseStyle' : [], 
+            'RoofStyle' : [], 
+            'RoofMatl' : [], 
+            'Exterior1st' : [], 
+            'Exterior2nd' : [], 
+            'MasVnrType' : [], 
+            'Foundation' : [], 
+            'Heating' : [], 
+            'CentralAir' : [], 
+            'GarageType' : [], 
+            'MiscFeature' : [], 
+            'SaleType' : [], 
+            'SaleCondition' : []
         }
         
         self.features = self.preprocess_data()
     
     def preprocess_data(self):
-        numerical_imputer = SimpleImputer(strategy='mean')
-        #replacing missing values and unifiying dtypes
+        #deleting problematic features
+        del self.data["MasVnrArea"]
+        del self.data["BsmtFinSF1"]
+        del self.data["BsmtFinSF2"]
+        del self.data["BsmtUnfSF"]
+        del self.data["TotalBsmtSF"]
+        del self.data["BsmtFullBath"]
+        del self.data["BsmtHalfBath"]
+        del self.data["GarageCars"]
+        del self.data["GarageArea"]
+        del self.data["MiscVal"]
         
-        #1. replace nan with 'NA' in categorical variables (if dtype == object)
+        del self.data["SalePrice"]
+        
+        #replacing missing values and unifiying dtypes
+        #1. replace nan with 'NA' in categorical features (if dtype == object) and
+        #encode ordinal features
+
         for column in self.data:
             if self.data[column].dtype == object: #categorical feature
-                self.data[column] = self.data[column].fillna('NA')  
-        #2. handle GarageYrBlt seperatly
-            elif column == 'GarageYrBlt': #NaN means no garage, construction year of 0 would not be a good idea so we take mean
-                numerical_imputer.fit_transform(self.data[column])
-        #3. Convert all numerical data to float64 and replace NaN with 0.0
-            else:
-                if np.issubdtype(self.data[column].dtype, np.integer):
-                    self.data[column] = self.data[column].astype('float64')
-                self.data[column] = self.data[column].fillna(0.0)
+                self.data[column] = self.data[column].fillna('NA')
                 
-        #encoding categorical data
+                if column in self.ordinal_feature_dict.keys(): #ordinal feature
+                    possible_values = self.ordinal_feature_dict[column]
+                    ord_encoder = OrdinalEncoder(categories=[possible_values])
+                    col = self.data[column].values.reshape(-1, 1)
+                    encoded_column = ord_encoder.fit_transform(col) #encodes as float64
+                    self.data[column] = encoded_column
+        #2. Encode nominal features
+                else: #nominal features 
+                    possible_values = self.data[column].unique()
+                    nom_encoder = OneHotEncoder(categories=possible_values)
+                    col = self.data[column].values.reshape(-1, 1)
+                    encoded_columns = nom_encoder.fit_transform(col)
+                    self.data[column] = encoded_columns #TODO
+                         
+        #3. Convert all numerical data to float64 and replace NaN with 0.0
+            if np.issubdtype(self.data[column].dtype, np.integer):
+                self.data[column] = self.data[column].astype('float64')
+            self.data[column] = self.data[column].fillna(0.0)
+        
+        
+                
+        
+        
+        
         
         
                   
