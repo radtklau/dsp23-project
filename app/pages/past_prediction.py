@@ -33,4 +33,4 @@ if st.button("Get Predictions"):
         df['predict_date'] = pd.to_datetime(df['predict_date'])
         st.dataframe(df)
     else:
-        st.write("An error occurred during prediction.")
+        st.write("An error occured while fetching past predictions.")

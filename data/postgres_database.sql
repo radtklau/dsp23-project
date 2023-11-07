@@ -4,11 +4,11 @@
 
 CREATE TABLE IF NOT EXISTS public.predictions
 (
-    id SERIAL,
-    "TotRmsAbvGrd" integer,
-    "WoodDeckSF" integer,
+    id integer NOT NULL DEFAULT nextval('predictions_id_seq'::regclass),
+    "TotRmsAbvGrd" real,
+    "WoodDeckSF" real,
     "YrSold" integer,
-    "FirstFlrSF" integer,
+    "FirstFlrSF" real,
     "Foundation_BrkTil" integer,
     "Foundation_CBlock" integer,
     "Foundation_PConc" integer,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.predictions
     "KitchenQual_Fa" integer,
     "KitchenQual_Gd" integer,
     "KitchenQual_TA" integer,
-    predict_date date,
+    predict_date timestamp without time zone,
     predict_result real,
     predict_source text COLLATE pg_catalog."default",
     CONSTRAINT prediction_pkey PRIMARY KEY (id)
