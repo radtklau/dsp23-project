@@ -30,7 +30,10 @@ if st.button("Get Predictions"):
     if (response.status_code == 200 or response.status_code == 422):
         db_contents = response.json()
         df = pd.DataFrame(db_contents)
-        df['predict_date'] = pd.to_datetime(df['predict_date'])
-        st.dataframe(df)
+        if not df.empty:
+            df['predict_date'] = pd.to_datetime(df['predict_date'])
+            st.dataframe(df)
+        else:
+            st.write("No predictions found")
     else:
         st.write("An error occured while fetching past predictions.")

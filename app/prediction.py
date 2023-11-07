@@ -7,10 +7,10 @@ st.title("Streamlit Interface for prediction")
 ############################################# Single prediction form function ##################################
 def page1():
     # Create input fields to collect data
-    tot_rooms_abv_grd = st.number_input("Total rooms above grade (does not include bathrooms)", min_value=0.0)
-    wood_deck_sf = st.number_input("Wood deck area in square feet  ", min_value=0.0)
+    tot_rooms_abv_grd = st.number_input("Total rooms above grade (does not include bathrooms)", min_value=0, step=1)
+    wood_deck_sf = st.number_input("Wood deck area in square feet  ", min_value=0,step=1)
     yr_sold = st.number_input("Year Sold (YYYY)", min_value=1900, max_value=2100, value=2023, step=1)
-    first_flr_sf = st.number_input("First Floor square feet", min_value=0.0)
+    first_flr_sf = st.number_input("First Floor square feet", min_value=0, step=1)
 
     foundation_options = ['Foundation_BrkTil', 'Foundation_CBlock', 'Foundation_PConc', 'Foundation_Slab', 'Foundation_Stone', 'Foundation_Wood']
     foundation = st.selectbox("Foundation", foundation_options, index=0)
