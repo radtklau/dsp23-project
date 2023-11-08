@@ -88,7 +88,7 @@ def page2():
 
                 # # Add a prediction column to the dataframe
                 
-                input_data["Prédictions"] = predictions
+                input_data["Predictions"] = predictions
 
                 # # Display all the dataframe now to the streamlit UI
                 st.write(input_data)
