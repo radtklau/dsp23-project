@@ -1,8 +1,10 @@
 import pandas as pd
+import os
 
 if __name__ == "__main__":
     path = "data/train.csv"
     data = pd.read_csv(path)
+    os.mkdir("data/folder_A")
     
     for file in range(1000):
         num_random_rows = 10
