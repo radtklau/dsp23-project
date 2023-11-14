@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS public.predictions
 (
-    id SERIAL,
+    id integer NOT NULL DEFAULT nextval('predictions_id_seq'::regclass),
     "TotRmsAbvGrd" real,
     "WoodDeckSF" real,
     "YrSold" integer,

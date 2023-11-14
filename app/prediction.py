@@ -35,11 +35,40 @@ def page1():
 def page2():
     uploaded_file = st.file_uploader("Upload your csv file", type=["csv"])
     if uploaded_file is not None:
+
         st.write("---")
         return {
             "type": "multiple",
             "data": uploaded_file
         }
+
+        if st.button("Predict"):
+            # Envoyer le fichier au serveur FastAPI pour la prédiction}
+            # Lire le contenu du fichier CSV
+            # contenu_csv = uploaded_file.read()
+
+            # Envoyer le fichier téléchargé à FastAPI
+            files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
+            # st.write(files)
+            # breakpoint()
+            response = requests.post("http://localhost:8000/predict_csv", files=files)
+           
+            if response.status_code == 200:
+                from io import StringIO
+                
+                predictions = response.json()["predictions"]
+                # Convert the csv file to a dataframe just to display datas 
+                input_data = pd.read_csv(StringIO(uploaded_file.getvalue().decode("utf-8")))
+
+                # # Add a prediction column to the dataframe
+                
+                input_data["Predictions"] = predictions
+
+                # # Display all the dataframe now to the streamlit UI
+                st.write(input_data)
+            else:
+                st.write("An error occurred during prediction.")
+############################################################################################################
 
 def main():
     st.write("---")
