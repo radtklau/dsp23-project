@@ -6,17 +6,18 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-import uvicorn
 import io
+from typing import List,Union
 
 app = FastAPI()
 
-# Load the saved joblib model
 model = joblib.load("..\\data\\housepricing.joblib")
 
 pw = ""
 ############################################### DATABASE CONNECTION ###########################################
-DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/dsp23"
+
+DATABASE_URL = "postgresql://postgres:password@localhost:5432/dsp23"
+
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -66,6 +67,9 @@ class InputData(BaseModel):
     KitchenQual_TA: int
     
 ##############################################################################################################
+class FileData(BaseModel):
+    file: Union[List[List[int]],InputData]
+##############################################################################################################
 
 class PastPredictionData(BaseModel):
     start_date: str 
@@ -74,56 +78,74 @@ class PastPredictionData(BaseModel):
 
 ########################################## Single prediction endpoint ########################################
 @app.post("/predict")
-def predict(data: InputData):
-    # Preparing the prediction data received from the streamlit UI
-    input_data = [
-        data.TotRmsAbvGrd,
-        data.WoodDeckSF,
-        data.YrSold,
-        data.FirstFlrSF,
-        data.Foundation_BrkTil,
-        data.Foundation_CBlock,
-        data.Foundation_PConc,
-        data.Foundation_Slab,
-        data.Foundation_Stone,
-        data.Foundation_Wood,
-        data.KitchenQual_Ex,
-        data.KitchenQual_Fa,
-        data.KitchenQual_Gd,
-        data.KitchenQual_TA
-    ]
+async def predict(data: FileData):
+    if isinstance(data.file, InputData):
+        input_data = [
+            data.file.TotRmsAbvGrd,
+            data.file.WoodDeckSF,
+            data.file.YrSold,
+            data.file.FirstFlrSF,
+            data.file.Foundation_BrkTil,
+            data.file.Foundation_CBlock,
+            data.file.Foundation_PConc,
+            data.file.Foundation_Slab,
+            data.file.Foundation_Stone,
+            data.file.Foundation_Wood,
+            data.file.KitchenQual_Ex,
+            data.file.KitchenQual_Fa,
+            data.file.KitchenQual_Gd,
+            data.file.KitchenQual_TA
+        ]
+        
+        prediction = model.predict([input_data])
+
+        db = SessionLocal()
+        db_prediction = PredictionRecord(
+            TotRmsAbvGrd=data.file.TotRmsAbvGrd,
+            WoodDeckSF=data.file.WoodDeckSF,
+            YrSold=data.file.YrSold,
+            FirstFlrSF=data.file.FirstFlrSF,
+            Foundation_BrkTil=data.file.Foundation_BrkTil,
+            Foundation_CBlock=data.file.Foundation_CBlock,
+            Foundation_PConc=data.file.Foundation_PConc,
+            Foundation_Slab=data.file.Foundation_Slab,
+            Foundation_Stone=data.file.Foundation_Stone,
+            Foundation_Wood=data.file.Foundation_Wood,
+            KitchenQual_Ex=data.file.KitchenQual_Ex,
+            KitchenQual_Fa=data.file.KitchenQual_Fa,
+            KitchenQual_Gd=data.file.KitchenQual_Gd,
+            KitchenQual_TA=data.file.KitchenQual_TA,
+            predict_date=datetime.now(),
+            predict_result=round(prediction[0], 2),
+            predict_source="web",
+        )
+        db.add(db_prediction)
+        db.commit()
+        db.refresh(db_prediction)
+
+        return {"predictions": prediction[0], "data": input_data}
     
-    # Make prediction with the loaded model and 
-    # the data we received from the streamlit UI
-    prediction = model.predict([input_data])
+    elif isinstance(data.file, List):
+        predictions = model.predict(data.file)
+        predictions_list = predictions.tolist()
 
-    # Enregistrez la prédiction dans la base de données PostgreSQL
-    db = SessionLocal()
-    db_prediction = PredictionRecord(
-        TotRmsAbvGrd = data.TotRmsAbvGrd,
-        WoodDeckSF = data.WoodDeckSF,
-        YrSold = data.YrSold,
-        FirstFlrSF = data.FirstFlrSF,
-        Foundation_BrkTil = data.Foundation_BrkTil,
-        Foundation_CBlock = data.Foundation_CBlock,
-        Foundation_PConc = data.Foundation_PConc,
-        Foundation_Slab = data.Foundation_Slab,
-        Foundation_Stone = data.Foundation_Stone,
-        Foundation_Wood = data.Foundation_Wood,
-        KitchenQual_Ex = data.KitchenQual_Ex,
-        KitchenQual_Fa = data.KitchenQual_Fa,
-        KitchenQual_Gd = data.KitchenQual_Gd,
-        KitchenQual_TA = data.KitchenQual_TA,
-        predict_date = datetime.now(),
-        predict_result = round(prediction[0],2),
-        predict_source = "web",
-    )
-    db.add(db_prediction)
-    db.commit()
-    db.refresh(db_prediction)
+        column_names = ["TotRmsAbvGrd", "WoodDeckSF", "YrSold", "FirstFlrSF", "Foundation_BrkTil",
+                        "Foundation_CBlock", "Foundation_PConc", "Foundation_Slab", "Foundation_Stone",
+                        "Foundation_Wood", "KitchenQual_Ex", "KitchenQual_Fa", "KitchenQual_Gd", "KitchenQual_TA"]
 
-    # return the prediction value to the streamlit UI
-    return {"predictions": prediction[0],"data":input_data}
+        df = pd.DataFrame(data.file, columns=column_names)
+
+        df["predict_date"] = datetime.now()
+        df["predict_result"] = predictions_list
+        df["predict_source"] = "web"
+
+        data_dict = df.to_dict(orient="records")
+
+        db = SessionLocal()
+        db.bulk_insert_mappings(PredictionRecord, data_dict)
+        db.commit()
+
+        return {"predictions": predictions_list, "original_data": data_dict}
 
 ################################### Get Past Predictions# ########################################
 @app.get("/past-predictions")
@@ -152,34 +174,5 @@ async def get_predictions(data: PastPredictionData):
 
     return result.mappings().all()
 ##########################################################################################################
-
-################################### Multiple prediction endpoint #########################################
-@app.post("/predict_csv")
-async def predict(file: UploadFile):
-    file_contents = file.file.read()
-
-    # Convertir le contenu en DataFrame
-    data = pd.read_csv(io.StringIO(file_contents.decode("utf-8")))
-
-    # Effectuer des prédictions avec le modèle
-    predictions = model.predict(data)
-
-    predictions_list = predictions.tolist()
-    data["predict_date"] = datetime.now()
-    data["predict_result"] = predictions_list
-    data["predict_source"] = "web"
-
-    # transform the dataframe to a dict just to insert it into the DB
-    data_dict = data.to_dict(orient="records")
-
-    # bulk_insert_mappings will insert all the dict into the DB at the same time
-    db = SessionLocal()
-    db.bulk_insert_mappings(PredictionRecord, data_dict)
-    db.commit()
-    
-    # return the predictions to the streamlit UI
-    return {"predictions": predictions_list}
-###########################################################################################################
- 
-if __name__ == "__main__":
-    uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
+# if __name__ == "__main__":
+#     uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
