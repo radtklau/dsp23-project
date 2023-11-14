@@ -1,53 +1,22 @@
-from fastapi import FastAPI,UploadFile
+from fastapi import FastAPI
 from pydantic import BaseModel
-import joblib
-import pandas as pd
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime, select
+import pandas as pd
+import joblib
+from sqlalchemy import create_engine, Column, Float, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-import io
 from typing import List,Union
 
 app = FastAPI()
-
 model = joblib.load("..\\data\\housepricing.joblib")
 
-
-############################################### DATABASE CONNECTION ###########################################
 DATABASE_URL = "postgresql://postgres:Loyaldreambalde11@localhost:5432/dsp23"
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-###############################################################################################################
-
-################################################## Postgres Table class ######################################
-class PredictionRecord(Base):
-    __tablename__ = "predictions"
-
-    id = Column(Integer, primary_key=True, nullable=False)
-    TotRmsAbvGrd = Column(Integer)
-    WoodDeckSF = Column(Float)
-    YrSold = Column(Integer)
-    FirstFlrSF = Column(Float)
-    Foundation_BrkTil = Column(Integer)
-    Foundation_CBlock = Column(Integer)
-    Foundation_PConc = Column(Integer)
-    Foundation_Slab = Column(Integer)
-    Foundation_Stone = Column(Integer)
-    Foundation_Wood = Column(Integer)
-    KitchenQual_Ex = Column(Integer)
-    KitchenQual_Fa = Column(Integer)
-    KitchenQual_Gd = Column(Integer)
-    KitchenQual_TA = Column(Integer)
-    predict_date = Column(DateTime, default=datetime.utcnow)
-    predict_result = Column(Float)
-    predict_source = Column(String(4))
-##############################################################################################################
-
-##################################### Data Validation with Pydandic.BaseModel ################################
 class InputData(BaseModel):
     TotRmsAbvGrd: int
     WoodDeckSF: int
@@ -63,18 +32,32 @@ class InputData(BaseModel):
     KitchenQual_Fa: int
     KitchenQual_Gd: int
     KitchenQual_TA: int
-    
-##############################################################################################################
+
+class PredictionRecord(Base):
+    __tablename__ = "predictions"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    TotRmsAbvGrd = Column(Integer)
+    WoodDeckSF = Column(Integer)
+    YrSold = Column(Integer)
+    FirstFlrSF = Column(Integer)
+    Foundation_BrkTil = Column(Integer)
+    Foundation_CBlock = Column(Integer)
+    Foundation_PConc = Column(Integer)
+    Foundation_Slab = Column(Integer)
+    Foundation_Stone = Column(Integer)
+    Foundation_Wood = Column(Integer)
+    KitchenQual_Ex = Column(Integer)
+    KitchenQual_Fa = Column(Integer)
+    KitchenQual_Gd = Column(Integer)
+    KitchenQual_TA = Column(Integer)
+    predict_date = Column(DateTime, default=datetime.utcnow)
+    predict_result = Column(Float)
+    predict_source = Column(String(4))
+
 class FileData(BaseModel):
     file: Union[List[List[int]],InputData]
-##############################################################################################################
 
-class PastPredictionData(BaseModel):
-    start_date: str 
-    end_date: str
-    prediction_source: str 
-
-########################################## Single prediction endpoint ########################################
 @app.post("/predict")
 async def predict(data: FileData):
     if isinstance(data.file, InputData):
@@ -144,33 +127,3 @@ async def predict(data: FileData):
         db.commit()
 
         return {"predictions": predictions_list, "original_data": data_dict}
-
-################################### Get Past Predictions# ########################################
-@app.get("/past-predictions")
-async def get_predictions(data: PastPredictionData):
-    start_date = f"{data.start_date} 00:00:00"
-    end_date = f"{data.end_date} 00:00:00"
-    prediction_source = data.prediction_source
-
-    statement = select(PredictionRecord.TotRmsAbvGrd,
-                       PredictionRecord.WoodDeckSF,
-                       PredictionRecord.YrSold,
-                       PredictionRecord.FirstFlrSF,
-                       PredictionRecord.predict_date,
-                       PredictionRecord.predict_source,
-                       PredictionRecord.predict_result
-                       ).where(
-        PredictionRecord.predict_date >= start_date,
-        PredictionRecord.predict_date <= end_date
-        )
-    if prediction_source != 'all':
-        statement = statement.where(
-            PredictionRecord.predict_source == prediction_source)
-
-    db = SessionLocal()
-    result = db.execute(statement)
-
-    return result.mappings().all()
-##########################################################################################################
-# if __name__ == "__main__":
-#     uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
