@@ -161,3 +161,6 @@ cython_debug/
 #.idea/
 
 Folder_A/
+Folder_B/
+Folder_C/
+logs/
