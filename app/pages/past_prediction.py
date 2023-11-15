@@ -36,4 +36,4 @@ if st.button("Get Predictions"):
         else:
             st.write("No predictions found")
     else:
-        st.write("An error occurred during prediction.")
+        st.write("An error occured while fetching past predictions.")

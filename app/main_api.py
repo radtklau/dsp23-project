@@ -13,9 +13,10 @@ app = FastAPI()
 
 model = joblib.load("..\\data\\housepricing.joblib")
 
-
+pw = ""
 ############################################### DATABASE CONNECTION ###########################################
-DATABASE_URL = "postgresql://postgres:Loyaldreambalde11@localhost:5432/dsp23"
+DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/dsp23"
+
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,9 +30,9 @@ class PredictionRecord(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     TotRmsAbvGrd = Column(Integer)
-    WoodDeckSF = Column(Float)
+    WoodDeckSF = Column(Integer)
     YrSold = Column(Integer)
-    FirstFlrSF = Column(Float)
+    FirstFlrSF = Column(Integer)
     Foundation_BrkTil = Column(Integer)
     Foundation_CBlock = Column(Integer)
     Foundation_PConc = Column(Integer)
