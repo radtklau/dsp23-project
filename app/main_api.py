@@ -15,8 +15,7 @@ model = joblib.load("..\\data\\housepricing.joblib")
 
 pw = ""
 ############################################### DATABASE CONNECTION ###########################################
-
-DATABASE_URL = "postgresql://postgres:password@localhost:5432/dsp23"
+DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/dsp23"
 
 
 engine = create_engine(DATABASE_URL, echo=True)
