@@ -21,28 +21,30 @@ with DAG(
 ) as read_dag:
 
     @task
-    def get_data_from_folder_A():
-        logging.info('First task')
-        df = []
-        files = os.listdir(FOLDER_A)
+    def get_data_from_folder_A() -> pd.DataFrame:
+        logging.info('Reading data from folder A')
+        df = pd.DataFrame()
+        files = sorted(os.listdir(FOLDER_A), key=len)
         logging.info(files)
-        filename=''
         if files:
             filename = files[0]
             file_path = os.path.join(FOLDER_A, filename)
-        return filename
+            df = pd.read_csv(file_path)
+        return df
 
     @task
-    def validate_data_quality(filename):
-        logging.info('Second task')
-        # TODO: data quality validation ...
-        if not os.path.exists(FOLDER_C):
-            os.makedirs(FOLDER_C)
-
-        logging.info(f'Saving file {filename} in folder C')
-        src_path = os.path.join(FOLDER_A, filename)
-        dst_path = os.path.join(FOLDER_C, filename)
-        os.rename(src_path,dst_path)
+    def validate_data_quality(df : pd.DataFrame):
+        logging.info('Validating data quality')
     
-    filename = get_data_from_folder_A()
-    validate_data_quality(filename)
+    df = get_data_from_folder_A()
+    validate_data_quality(df)
+
+
+
+
+# if not os.path.exists(FOLDER_C):
+#     os.makedirs(FOLDER_C)
+# logging.info(f'Saving file {filename} in folder C')
+# src_path = os.path.join(FOLDER_A, filename)
+# dst_path = os.path.join(FOLDER_C, filename)
+# os.rename(src_path,dst_path)
