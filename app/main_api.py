@@ -11,11 +11,11 @@ from typing import List,Union
 
 app = FastAPI()
 
-model = joblib.load("..\\data\\housepricing.joblib")
+model = joblib.load("../data/housepricing.joblib")
 
-pw = ""
+pw = "laurids1999"
 ############################################### DATABASE CONNECTION ###########################################
-DATABASE_URL = "postgresql://postgres:Loyaldreambalde11@localhost:5432/dsp23"
+DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/testdb"
 
 
 engine = create_engine(DATABASE_URL, echo=True)
@@ -68,6 +68,7 @@ class InputData(BaseModel):
 ##############################################################################################################
 class FileData(BaseModel):
     file: Union[List[List[int]],InputData]
+    prediction_source: str
 ##############################################################################################################
 
 class PastPredictionData(BaseModel):
@@ -116,7 +117,7 @@ async def predict(data: FileData):
             KitchenQual_TA=data.file.KitchenQual_TA,
             predict_date=datetime.now(),
             predict_result=round(prediction[0], 2),
-            predict_source="web",
+            predict_source=data.prediction_source,
         )
         db.add(db_prediction)
         db.commit()
@@ -136,7 +137,7 @@ async def predict(data: FileData):
 
         df["predict_date"] = datetime.now()
         df["predict_result"] = predictions_list
-        df["predict_source"] = "web"
+        df["predict_source"] = data.prediction_source
 
         data_dict = df.to_dict(orient="records")
 
@@ -175,3 +176,7 @@ async def get_predictions(data: PastPredictionData):
 ##########################################################################################################
 # if __name__ == "__main__":
 #     uvicorn.run("main_api:app", host="127.0.0.1", port=8000)
+
+@app.post("/test")
+async def test_endpoint():
+    return {"message": "This is a test endpoint"}

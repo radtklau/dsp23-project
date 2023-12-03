@@ -86,7 +86,8 @@ def main():
         elif prediction_data["type"] == "multiple":
             csv_content = prediction_data["data"].read().decode("utf-8")
             rows = [list(map(int, row.split(','))) for row in csv_content.split('\n')]
-            data = {"file": rows}
+            data = {"file": rows,
+                    "prediction_source": "web"}
 
             response = requests.post("http://localhost:8000/predict", json=data)
         if response.status_code == 200:
