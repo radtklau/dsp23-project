@@ -8,9 +8,9 @@ from airflow.decorators import task
 from airflow.utils.dates import days_ago
 
 
-FOLDER_A = 'data/folder_A/'
-FOLDER_B = 'data/folder_B/'
-FOLDER_C = 'data/folder_C/'
+FOLDER_A = '../data/folder_A/'
+FOLDER_B = '../data/folder_B/'
+FOLDER_C = '../data/folder_C/'
 
 with DAG(
     dag_id='read_data',
@@ -24,7 +24,7 @@ with DAG(
     def get_data_from_folder_A():
         logging.info('First task')
         df = []
-        files = os.listdir(FOLDER_A)
+        files = sorted(os.listdir(FOLDER_A), key=len)
         logging.info(files)
         filename=''
         if files:
