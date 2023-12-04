@@ -2,15 +2,15 @@ import logging
 import os
 import pandas as pd
 from datetime import datetime, timedelta
-
 from airflow import DAG
 from airflow.decorators import task
 from airflow.utils.dates import days_ago
+from utils.validate import validate, log_failed_expectations
 
 
-FOLDER_A = '../data/folder_A/'
-FOLDER_B = '../data/folder_B/'
-FOLDER_C = '../data/folder_C/'
+FOLDER_A = 'data/folder_A/'
+FOLDER_B = 'data/folder_B/'
+FOLDER_C = 'data/folder_C/'
 
 with DAG(
     dag_id='read_data',
@@ -34,7 +34,11 @@ with DAG(
 
     @task
     def validate_data_quality(df : pd.DataFrame):
+        df['TotRmsAbvGrd'][0] = None
+        df['TotRmsAbvGrd'][1] = None
         logging.info('Validating data quality')
+        validation_result = validate(df)
+        info = log_failed_expectations(validation_result.to_json_dict()) 
     
     df = get_data_from_folder_A()
     validate_data_quality(df)
