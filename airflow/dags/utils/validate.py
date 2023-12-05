@@ -1,3 +1,4 @@
+import os
 import great_expectations as gx
 import pandas as pd
 from datetime import datetime
@@ -5,7 +6,7 @@ from great_expectations.checkpoint import Checkpoint
 from great_expectations.data_context.types.base import DataContextConfig
 import logging
 
-def validate(df):
+def validate(df: pd.DataFrame):
     context = gx.get_context()
     now = datetime.now()
 
@@ -59,14 +60,14 @@ def validate(df):
     return checkpoint.run(result_format=result_format)
 
 
-def log_failed_expectations(result_json) -> str:
-    logging.info('LOGGING FAILED EXPECTATIONS !!!') 
+def log_failed_expectations(result_json) -> list:
     logging.info(result_json)
     run_results = result_json['run_results']
     val_result_id = list(run_results)[0]
     val_results = run_results[val_result_id]['validation_result']
 
     info = "" 
+    failed_rows = []
     for res in val_results['results']:
         if res['success'] == False:
             info += f"column -> {res['expectation_config']['kwargs']['column'] }\n"
@@ -74,6 +75,24 @@ def log_failed_expectations(result_json) -> str:
             indexes_list = res['result']['partial_unexpected_index_list']
             failed_rows_id = [item['Id'] for item in indexes_list]
             info += f"    rows with errors -> {failed_rows_id}\n"
+            failed_rows = list(set(failed_rows + failed_rows_id))
 
     logging.info(info)
-    return info 
+    return failed_rows 
+
+def move_dirs(src_folder_name,dst_folder_name, file_name):
+    if not os.path.exists(dst_folder_name):
+        os.makedirs(dst_folder_name)
+    logging.info(f'Saving file {file_name} in folder {dst_folder_name}')
+    src_path = os.path.join(src_folder_name, file_name)
+    dst_path = os.path.join(dst_folder_name, file_name)
+    os.rename(src_path,dst_path)
+
+def save_df_to_folder(df,folder_name,file_name):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    path = os.path.join(folder_name, file_name)
+
+    logging.info(f'Saving file {file_name} in folder {folder_name}')
+    df.to_csv(path, index=False)
