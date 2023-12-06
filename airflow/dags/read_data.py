@@ -49,6 +49,8 @@ with DAG(
         failed_rows, desc = filter_expectations_result(validation_result.to_json_dict()) 
 
         logging.info(f'Data Validated -> failed rows = {failed_rows}')
+        
+        desc = desc.replace('_FILENAME_',filename)
 
         if set(failed_rows) == set(df_rows): # all rows with data problems 
             save_df_to_folder(df, FOLDER_B, f'failed_{filename}')

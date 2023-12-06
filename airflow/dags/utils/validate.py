@@ -109,9 +109,9 @@ def move_dirs(src_folder_name,dst_folder_name, file_name):
 
 def save_df_to_folder(df,folder_name,file_name):
     if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+        os.makedirs(folder_nae)
 
     path = os.path.join(folder_name, file_name)
 
     logging.info(f'Saving file {file_name} in folder {folder_name}')
-    df.to_csv(path, index=False)
+    df.to_csv(path, index=False, header=False)

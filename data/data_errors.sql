@@ -1,6 +1,7 @@
 -- Table: public.data_errors
 
 -- DROP TABLE IF EXISTS public.data_errors;
+CREATE SEQUENCE data_errors_id_seq;
 
 CREATE TABLE IF NOT EXISTS public.data_errors
 (
