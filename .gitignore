@@ -164,3 +164,4 @@ Folder_A/
 Folder_B/
 Folder_C/
 logs/
+airflow/airflow.db
