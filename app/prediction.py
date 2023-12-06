@@ -42,32 +42,32 @@ def page2():
             "data": uploaded_file
         }
 
-        if st.button("Predict"):
-            # Envoyer le fichier au serveur FastAPI pour la prédiction}
-            # Lire le contenu du fichier CSV
-            # contenu_csv = uploaded_file.read()
+        # if st.button("Predict"):
+        #     # Envoyer le fichier au serveur FastAPI pour la prédiction}
+        #     # Lire le contenu du fichier CSV
+        #     # contenu_csv = uploaded_file.read()
 
-            # Envoyer le fichier téléchargé à FastAPI
-            files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
-            # st.write(files)
-            # breakpoint()
-            response = requests.post("http://localhost:8000/predict_csv", files=files)
+        #     # Envoyer le fichier téléchargé à FastAPI
+        #     files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
+        #     # st.write(files)
+        #     # breakpoint()
+        #     response = requests.post("http://localhost:8000/predict_csv", files=files)
            
-            if response.status_code == 200:
-                from io import StringIO
+        #     if response.status_code == 200:
+        #         from io import StringIO
                 
-                predictions = response.json()["predictions"]
-                # Convert the csv file to a dataframe just to display datas 
-                input_data = pd.read_csv(StringIO(uploaded_file.getvalue().decode("utf-8")))
+        #         predictions = response.json()["predictions"]
+        #         # Convert the csv file to a dataframe just to display datas 
+        #         input_data = pd.read_csv(StringIO(uploaded_file.getvalue().decode("utf-8")))
 
-                # # Add a prediction column to the dataframe
+        #         # # Add a prediction column to the dataframe
                 
-                input_data["Predictions"] = predictions
+        #         input_data["Predictions"] = predictions
 
-                # # Display all the dataframe now to the streamlit UI
-                st.write(input_data)
-            else:
-                st.write("An error occurred during prediction.")
+        #         # # Display all the dataframe now to the streamlit UI
+        #         st.write(input_data)
+        #     else:
+        #         st.write("An error occurred during prediction.")
 ############################################################################################################
 
 def main():
@@ -82,7 +82,7 @@ def main():
         prediction_data = page2()
     if st.button("Predict"):
         if prediction_data["type"] == "single":
-            response = requests.post("http://localhost:8000/predict", json={"file":prediction_data["data"]})
+            response = requests.post("http://localhost:8000/predict", json={"file":prediction_data["data"],"prediction_source": "web"})
         elif prediction_data["type"] == "multiple":
             csv_content = prediction_data["data"].read().decode("utf-8")
             rows = [list(map(int, row.split(','))) for row in csv_content.split('\n')]
