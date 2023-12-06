@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.decorators import task
 from airflow.utils.dates import days_ago
-from utils.validate import validate, log_failed_expectations, move_dirs, save_df_to_folder
+
+from utils.validate import validate, filter_expectations_result, move_dirs, save_df_to_folder
+from utils.data_errors import save_data_errors 
 
 
 FOLDER_A = 'data/folder_A/'
@@ -44,22 +46,23 @@ with DAG(
         df_rows = list(df['Id'].values)
 
         validation_result = validate(df)
-        failed_rows = log_failed_expectations(validation_result.to_json_dict()) 
+        failed_rows, desc = filter_expectations_result(validation_result.to_json_dict()) 
 
         logging.info(f'Data Validated -> failed rows = {failed_rows}')
 
         if set(failed_rows) == set(df_rows): # all rows with data problems 
             save_df_to_folder(df, FOLDER_B, f'failed_{filename}')
-            # ... save data problems in db
+            save_data_errors(filename, desc)     
         elif failed_rows == []: # no data problems found
             save_df_to_folder(df, FOLDER_C, f'workig_{filename}')
-            # ... save data problems in db
         elif failed_rows != []: # some rows have problems
             failed_df = df[df['Id'].isin(failed_rows)]
             working_df = df[~df['Id'].isin(failed_rows)]
             save_df_to_folder(working_df, FOLDER_C, f'working_{filename}')
             save_df_to_folder(failed_df,FOLDER_B, f'failed_{filename}')
-            # ... save data problems in db
+            save_data_errors(filename, desc) 
+
+        return failed_rows
     
     filename = get_data_from_folder_A()
     validate_data_quality(filename)

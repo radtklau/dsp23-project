@@ -13,7 +13,7 @@ app = FastAPI()
 
 model = joblib.load("../data/housepricing.joblib")
 
-pw = "laurids1999"
+pw = ""
 ############################################### DATABASE CONNECTION ###########################################
 DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/testdb"
 
