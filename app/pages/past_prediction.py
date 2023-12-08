@@ -13,7 +13,7 @@ prediction_dates = st.date_input("Select the predictions start and end date",
                                  (today, next_year),
                                  format="DD/MM/YYYY")
 
-prediction_options = ["all", "web", "scheduled predictions"]
+prediction_options = ["all", "web", "scheduled"]
 prediction_source = st.selectbox("Select the prediction source",
                                  prediction_options)
 
