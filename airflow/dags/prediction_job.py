@@ -10,9 +10,9 @@ from airflow.utils.dates import days_ago
 import json
 
 
-FOLDER_A = '../data/folder_A/'
-FOLDER_B = '../data/folder_B/'
-FOLDER_C = '../data/folder_C/'
+FOLDER_A = 'data/folder_A/'
+FOLDER_B = 'data/folder_B/'
+FOLDER_C = 'data/folder_C/'
 
 with DAG(
     dag_id='prediction_job',
@@ -29,7 +29,7 @@ with DAG(
         logging.info(files)
         filename = ""
         if files:
-            filename = files[0]
+            filename = files[-1]
             file_path = os.path.join(FOLDER_C, filename)
         return file_path
 
@@ -38,7 +38,11 @@ with DAG(
         logging.info('Task 2: Start prediction job')
         csv_content = open(file_path, 'r').read()
         logging.info(csv_content)
-        rows = [list(map(int, row.split(','))) for row in csv_content.split('\n')]
+        rows = []
+        for r in csv_content.split('\n'):
+            if r != '': # in case of even number of lines
+                rows.append(list(map(int, r.split(','))))
+        # rows = [list(map(int, rows.split(','))) for row in csv_content.split('\n')]
         data = {"file": rows, "prediction_source": "scheduled"}
         logging.info(data)
         response = requests.post("http://localhost:8000/predict", json=data)

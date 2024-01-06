@@ -1,9 +1,13 @@
 import pandas as pd
 import os
+from preprocess import preprocess
+
+COLUMNS = ['TotRmsAbvGrd', 'WoodDeckSF', 'YrSold', '1stFlrSF','Foundation','KitchenQual']
 
 if __name__ == "__main__":
     path = "../data/train.csv"
     data = pd.read_csv(path)
+    data = preprocess(data)
     # os.mkdir("../data/folder_A")
     
     for file in range(1000):
