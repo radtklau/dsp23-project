@@ -1,7 +1,7 @@
 import os
 import great_expectations as gx
 import logging
-
+from shutil import copyfile
 
 def create_validator(path, context):
     validator = context.sources.pandas_default.read_csv(path)
@@ -79,6 +79,13 @@ def move_dirs(src_folder_name, dst_folder_name, file_name):
     dst_path = os.path.join(dst_folder_name, file_name)
     os.rename(src_path, dst_path)
 
+def copy_dirs(src_folder_name, dst_folder_name, file_name):
+    if not os.path.exists(dst_folder_name):
+        os.makedirs(dst_folder_name)
+    logging.info(f'Copying file {file_name} to folder {dst_folder_name}')
+    src_path = os.path.join(src_folder_name, file_name)
+    dst_path = os.path.join(dst_folder_name, file_name)
+    copyfile(src_path, dst_path)
 
 def save_df_to_folder(df, folder_name, file_name):
     if not os.path.exists(folder_name):
