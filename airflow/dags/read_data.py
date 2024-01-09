@@ -1,13 +1,13 @@
 import logging
 import os
+import random
 import pandas as pd
 from datetime import timedelta
 from airflow import DAG
 from airflow.decorators import task
 from airflow.utils.dates import days_ago
-from utils.validate import validate, filter_expectations_result, move_dirs, save_df_to_folder
+from utils.validate import validate, filter_expectations_result, copy_dirs, save_df_to_folder
 from utils.data_errors import save_data_errors
-
 
 FOLDER_A = 'data/folder_A/'
 FOLDER_B = 'data/folder_B/'
@@ -25,12 +25,10 @@ with DAG(
     @task
     def get_data_from_folder_A():
         logging.info('First task')
-        files = sorted(os.listdir(FOLDER_A), key=len)
-        logging.info(files)
-        filename = ''
-        if files:
-            filename = files[0]
-            move_dirs(FOLDER_A, TMP_FOLDER, filename)
+        file = random.choice(os.listdir(FOLDER_A))
+        logging.info(file)
+        if file:
+            copy_dirs(FOLDER_A, TMP_FOLDER, file)
         return filename
 
     @task

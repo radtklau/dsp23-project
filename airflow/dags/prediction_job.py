@@ -1,5 +1,5 @@
 import logging
-import os
+import os,random
 import pandas as pd
 from datetime import datetime, timedelta
 import requests
@@ -25,12 +25,11 @@ with DAG(
     @task
     def get_data_from_folder_C():
         logging.info('Task 1: Get data from Folder C')
-        files = sorted(os.listdir(FOLDER_C), key=len)
-        logging.info(files)
-        filename = ""
-        if files:
-            filename = files[-1]
-            file_path = os.path.join(FOLDER_C, filename)
+        file = random.choice(os.listdir(FOLDER_A))
+        logging.info(file)
+        file_path = ''
+        if file:
+            file_path = os.path.join(FOLDER_C, file)
         return file_path
 
     @task
