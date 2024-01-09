@@ -3,11 +3,13 @@ import great_expectations as gx
 import logging
 from shutil import copyfile
 
+
 def create_validator(path, context):
     validator = context.sources.pandas_default.read_csv(path)
 
     validator.expect_column_values_to_not_be_null('TotRmsAbvGrd')
-    validator.expect_column_values_to_be_between('TotRmsAbvGrd', min_value=1, max_value=30)
+    validator.expect_column_values_to_be_between('TotRmsAbvGrd',
+                                                 min_value=1, max_value=30)
     validator.expect_column_values_to_not_be_null('WoodDeckSF')
     validator.expect_column_values_to_not_be_null('YrSold')
     validator.expect_column_values_to_not_be_null('1stFlrSF')
@@ -40,11 +42,12 @@ def validate(path):
 
 
 def filter_expectations_result(result_json):
-    logging.info(result_json)
+    # logging.info(result_json)
     run_results = result_json['run_results']
     val_result_id = list(run_results)[0]
     val_results = run_results[val_result_id]['validation_result']
-
+    statistics = val_results['statistics']
+    statistics['success_percent'] = round(statistics['success_percent'], 2)
     # info = ''
     failed_rows = []
     failed_cols = []
@@ -68,7 +71,7 @@ def filter_expectations_result(result_json):
     desc = desc.replace('[', '')
     desc = desc.replace(']', '')
     # logging.info(info)
-    return failed_rows, desc
+    return failed_rows, desc, statistics
 
 
 def move_dirs(src_folder_name, dst_folder_name, file_name):
@@ -79,6 +82,7 @@ def move_dirs(src_folder_name, dst_folder_name, file_name):
     dst_path = os.path.join(dst_folder_name, file_name)
     os.rename(src_path, dst_path)
 
+
 def copy_dirs(src_folder_name, dst_folder_name, file_name):
     if not os.path.exists(dst_folder_name):
         os.makedirs(dst_folder_name)
@@ -86,6 +90,7 @@ def copy_dirs(src_folder_name, dst_folder_name, file_name):
     src_path = os.path.join(src_folder_name, file_name)
     dst_path = os.path.join(dst_folder_name, file_name)
     copyfile(src_path, dst_path)
+
 
 def save_df_to_folder(df, folder_name, file_name):
     if not os.path.exists(folder_name):
@@ -95,4 +100,3 @@ def save_df_to_folder(df, folder_name, file_name):
 
     logging.info(f'Saving file {file_name} in folder {folder_name}')
     df.to_csv(path, index=False, header=False)
-
