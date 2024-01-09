@@ -1,0 +1,7 @@
+1. launch WSL ubuntu in VSC ("Connect to WSL using Distro..."), navigate to mnt/.../dsp23-project/app
+2. launch backend/API in app/ with "uvicorn main_api:app --reload"
+3. launch streamlit interface in app/ with "streamlit run prediction.py"
+4. run postgres database with "psql -U postgres" (pw: postgres), 
+    tables are in testdb db, "SELECT * FROM "predictions" ; shows content of predictions table
+5. go into airflow/ folder, set "export AIRFLOW_HOME="$(pwd)"", go back to main folder, launch airflow scheduler with "airflow scheduler"
+6. in another terminal also go into airflow/ folder, set "export AIRFLOW_HOME="$(pwd)"", go back to main folder, launch airflow ui with "airflow webserver --port 8080"
