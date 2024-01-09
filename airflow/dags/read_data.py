@@ -27,14 +27,14 @@ with DAG(
         logging.info('First task')
         file = random.choice(os.listdir(FOLDER_A))
         logging.info(file)
-        if file:
-            copy_dirs(FOLDER_A, TMP_FOLDER, file)
-        return filename
+        # if file:
+        #     copy_dirs(FOLDER_A, TMP_FOLDER, file)
+        return file
 
     @task
     def validate_data_quality(filename):
         logging.info('Validating data quality')
-        file_path = os.path.join(TMP_FOLDER, filename)
+        file_path = os.path.join(FOLDER_A, filename)
 
         validation_result = validate(file_path)
         failed_rows, desc = filter_expectations_result(
