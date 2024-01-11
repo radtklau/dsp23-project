@@ -85,14 +85,13 @@ def main():
             response = requests.post("http://localhost:8000/predict", json={"file":prediction_data["data"],"prediction_source": "web"})
         elif prediction_data["type"] == "multiple":
             csv_content = prediction_data["data"].read().decode("utf-8")
-            rows = [list(map(int, row.split(','))) for row in csv_content.split('\n')]
+            rows = [list(map(int, row.split(','))) for row in csv_content.split('\n') if row.strip()]
             data = {"file": rows,
                     "prediction_source": "web"}
-
             response = requests.post("http://localhost:8000/predict", json=data)
+            
         if response.status_code == 200:
             prediction = response.json()
-
             if prediction_data["type"] == "single":
                 if "predictions" in prediction and "data" in prediction:
                     st.subheader("The estimated price of the house is ")
@@ -123,9 +122,8 @@ def main():
                 if "original_data" in prediction and "predictions" in prediction:
                     st.write("Original Data:")
                     df_result = pd.DataFrame(prediction["original_data"])
-                    df_result["Result"] = prediction["predictions"]
+                    # df_result["Result"] = prediction["predictions"]
                     st.write(df_result)
-
         else:
             st.write("An error occurred during prediction 1.")
 
