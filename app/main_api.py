@@ -14,9 +14,9 @@ app = FastAPI()
 
 model = joblib.load("../data/housepricing.joblib")
 
-pw = "postgres"
+pw = "pw"
 ############################################### DATABASE CONNECTION ###########################################
-DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/testdb"
+DATABASE_URL = "postgresql://postgres:"+pw+"@localhost:5432/dsp23"
 
 
 engine = create_engine(DATABASE_URL, echo=True)
@@ -99,7 +99,9 @@ async def predict(data: FileData):
         ]
         
         prediction = model.predict([input_data])
-
+        if prediction[0] <= 0:
+            prediction[0] = 10000
+            
         db = SessionLocal()
         db_prediction = PredictionRecord(
             TotRmsAbvGrd=data.file.TotRmsAbvGrd,
