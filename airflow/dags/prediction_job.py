@@ -152,19 +152,21 @@ with DAG(
         predicted_files_str = file.read()
         file.close()
         if predicted_files_str:
-            predicted_files = predicted_files_str.split(" ")[:-1] #without last elem because it is just an empty string (line 13)
+            predicted_files = predicted_files_str.split(" ")
         else:
             predicted_files = []
         
         dir_C_set = set(dir_C)
         predicted_files_set = set(predicted_files)
         
+        logging.info(f"dir C set {dir_C_set}")
+        logging.info(f"predicted files set {predicted_files_set}")
         unpredicted_files = list(dir_C_set.difference(predicted_files_set))
-        
+        logging.info(f"unpredicted files {unpredicted_files}")
         
         if not unpredicted_files:
             logging.info("No new file found in folder C.")
-            return None
+            return None 
         else:
             files_to_predict = []
             predicted_files.extend(unpredicted_files)
@@ -177,6 +179,7 @@ with DAG(
         
 
         logging.info("--------------------------------")
+        logging.info("Files to predict:")
         logging.info(unpredicted_files)
         logging.info("--------------------------------")
             
