@@ -161,46 +161,47 @@ with DAG(
         
         unpredicted_files = list(dir_C_set.difference(predicted_files_set))
         
-        if unpredicted_files:
-            file_name = random.choice(unpredicted_files)
-            predicted_files.append(file_name)
-        else:
+        
+        if not unpredicted_files:
             logging.info("No new file found in folder C.")
             return None
+        else:
+            files_to_predict = []
+            predicted_files.extend(unpredicted_files)
+            for file_name in unpredicted_files:
+                files_to_predict.append(os.path.join(FOLDER_C, file_name))
             
         file = open('airflow/dags/predicted_files.txt','w')
         file.writelines(entry+" " for entry in predicted_files)
         file.close()
         
-        logging.info(file_name)
+
         logging.info("--------------------------------")
-        logging.info(predicted_files)
+        logging.info(unpredicted_files)
         logging.info("--------------------------------")
-        
-        file_path = ''
-        if file:
-            file_path = os.path.join(FOLDER_C, file_name)
-        return file_path
+            
+        return files_to_predict #return every unpredicted file in a list
 
     @task
-    def make_prediction(file_path):
-        if file_path:
+    def make_prediction(files):
+        if files:
             logging.info('Task 2: Start prediction job')
-            logging.info(f"Predicting file {file_path}")
-            csv_content = open(file_path, 'r').read()
-            logging.info(csv_content)
-            rows = []
-            for r in csv_content.split('\n'):
-                if r != '': # in case of even number of lines
-                    rows.append(list(map(int, r.split(','))))
-            # rows = [list(map(int, rows.split(','))) for row in csv_content.split('\n')]
-            data = {"file": rows, "prediction_source": "scheduled"}
-            logging.info(data)
-            response = requests.post("http://localhost:8000/predict", json=data)
-            #response = requests.post("http://localhost:8000/test")
-            logging.info(response)
-            #logging.info(json.dumps(response.json(), indent=4))
-            logging.info(f"Response: {response.text}")
+            for file_path in files: #predict all provided files
+                logging.info(f"Predicting file {file_path}")
+                csv_content = open(file_path, 'r').read()
+                logging.info(csv_content)
+                rows = []
+                for r in csv_content.split('\n'):
+                    if r != '': # in case of even number of lines
+                        rows.append(list(map(int, r.split(','))))
+                # rows = [list(map(int, rows.split(','))) for row in csv_content.split('\n')]
+                data = {"file": rows, "prediction_source": "scheduled"}
+                logging.info(data)
+                response = requests.post("http://localhost:8000/predict", json=data)
+                #response = requests.post("http://localhost:8000/test")
+                logging.info(response)
+                #logging.info(json.dumps(response.json(), indent=4))
+                logging.info(f"Response: {response.text}")
         else:
             logging.info("Skipped prediction, because no new files are available.")
 
