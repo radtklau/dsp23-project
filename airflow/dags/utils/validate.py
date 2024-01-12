@@ -1,7 +1,8 @@
 import os
 import great_expectations as gx
 import logging
-from shutil import copyfile
+from shutil import copyfile, move
+from datetime import datetime
 
 
 def create_validator(path, context):
@@ -41,14 +42,28 @@ def validate(path):
     return checkpoint.run(result_format=result_format)
 
 
+def save_validation_result_ui(actions_results):
+
+    if not os.path.exists('validations'):
+        os.makedirs('validations')
+
+    curr_path = os.getcwd()
+    site_path = actions_results['update_data_docs']['local_site'].replace( '%23', '#')
+    now_str = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
+    id = len(os.listdir(f'{curr_path}/validations/'))
+    move(site_path[7:],
+         f'{curr_path}/validations/{now_str}_validation_result_{id}.html')
+
+
 def filter_expectations_result(result_json):
-    # logging.info(result_json)
     run_results = result_json['run_results']
     val_result_id = list(run_results)[0]
     val_results = run_results[val_result_id]['validation_result']
     statistics = val_results['statistics']
     statistics['success_percent'] = round(statistics['success_percent'], 2)
-    # info = ''
+
+    save_validation_result_ui(run_results[val_result_id]['actions_results'])
+
     failed_rows = []
     failed_cols = []
     failed_conf = []
@@ -57,20 +72,20 @@ def filter_expectations_result(result_json):
         if res['success'] == False:
             _col = res['expectation_config']['kwargs']['column']
             _exp_conf = res['expectation_config']['expectation_type']
-            # info += f'column -> {_col}\n'
-            # info += f'    expectation_config -> {_exp_conf}\n'
             indexes_list = res['result']['partial_unexpected_index_list']
+
             failed_rows_id = [item['Id'] for item in indexes_list]
+
             failed_rows = list(set(failed_rows + failed_rows_id))
             failed_conf = list(set(failed_conf + [_exp_conf]))
             failed_cols = list(set(failed_cols + [_col]))
-            # info += f'    rows with errors -> {failed_rows_id}\n'
 
     desc = f'Validation Error on Rows {failed_rows} of file _FILENAME_ !'
     desc += f'Columns {failed_cols} failed on the following expectations : {failed_conf}'
+
     desc = desc.replace('[', '')
     desc = desc.replace(']', '')
-    # logging.info(info)
+
     return failed_rows, desc, statistics
 
 
