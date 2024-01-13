@@ -5,3 +5,8 @@ uvicorn==0.23.2
 fastapi==0.104.1
 SQLAlchemy==2.0.23
 psycopg2==2.9.9
+joblib==1.3.2
+scikit-learn==1.3.2
+# fastapi-cors
+great-expectations==0.18.3
+airflow-provider-great-expectations==0.2.7
